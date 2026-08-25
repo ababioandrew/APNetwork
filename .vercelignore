@@ -1,8 +1,9 @@
+cat > .vercelignore << 'EOF'
 node_modules
 .git
 .env
-.env.local
 .DS_Store
 *.log
 src/
 public/
+EOF
