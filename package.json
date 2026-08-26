@@ -22,14 +22,10 @@
     "concurrently": "^8.0.1",
     "cross-env": "^10.1.0"
   },
-  "scripts": {
-    "start": "cross-env PORT=3000 react-scripts start",
+   "scripts": {
+    "start": "node server.js",
     "server": "node server.js",
-    "dev": "concurrently \"npm run start\" \"npm run server\"",
-    "build": "react-scripts build",
-    "vercel-build": "npm run build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "vercel-build": "npm install"
   },
   "browserslist": {
     "production": [
