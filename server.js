@@ -11,7 +11,6 @@ console.log("📦 Environment:", process.env.NODE_ENV || "development");
 
 const app = express();
 
-
 // =====================================================
 // SUPABASE CONFIGURATION
 // =====================================================
@@ -19,7 +18,6 @@ const app = express();
 const supabaseUrl = process.env.SUPABASE_URL?.trim();
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY?.trim();
-
 
 // -----------------------------------------------------
 // SUPABASE URL CHECK
@@ -37,7 +35,6 @@ if (!supabaseUrl.startsWith("https://")) {
   process.exit(1);
 }
 
-
 // -----------------------------------------------------
 // SERVICE ROLE KEY CHECK
 // -----------------------------------------------------
@@ -49,7 +46,6 @@ if (!supabaseServiceRoleKey) {
   process.exit(1);
 }
 
-
 // -----------------------------------------------------
 // LOG CONFIGURATION SAFELY
 // -----------------------------------------------------
@@ -60,7 +56,6 @@ console.log("✅ Supabase service-role key detected.");
 if (supabaseAnonKey) {
   console.log("ℹ️ Supabase anon key also detected.");
 }
-
 
 // =====================================================
 // ENVIRONMENT VARIABLES
@@ -74,23 +69,26 @@ for (const key of requiredEnv) {
   }
 }
 
-
 // =====================================================
-// CORS
+// CORS - FIXED FOR PRODUCTION
 // =====================================================
-const allowedOrigins = [
-  "http://localhost:3000",
-  "http://localhost:5173",
-  "http://localhost:5000",
 
-  // Add your Vercel frontend URL
-  //  REACT_APP_API_URL=https://your-backend.vercel.app
-  "https://your-frontend.vercel.app",
-  "https://your-frontend-git-branch.vercel.app",
-  // Add custom domain if you have one
-  "https://yourdomain.com",
-  process.env.FRONTEND_URL?.trim(),
-].filter(Boolean);
+// Get allowed origins from environment variable or use defaults
+const getAllowedOrigins = () => {
+  // If FRONTEND_URL is set in environment (Vercel), use it
+  if (process.env.FRONTEND_URL) {
+    return [process.env.FRONTEND_URL];
+  }
+  
+  // For development, allow localhost
+  return [
+    "http://localhost:3000",
+    "http://localhost:5173",
+    "http://localhost:5000",
+  ];
+};
+
+const allowedOrigins = getAllowedOrigins();
 
 console.log("🌐 Allowed frontend origins:");
 console.log(allowedOrigins);
@@ -108,11 +106,12 @@ app.use(
         return callback(null, true);
       }
 
-      // For Vercel preview deployments
+      // For Vercel preview deployments (allows any vercel.app subdomain)
       if (origin.includes('.vercel.app')) {
         return callback(null, true);
       }
 
+      // Check against allowed origins list
       if (allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
@@ -140,20 +139,8 @@ app.use(
   })
 );
 
-
 // =====================================================
 // SUPABASE CLIENT
-// =====================================================
-//
-// IMPORTANT:
-//
-// This is the SERVER-SIDE Supabase client.
-//
-// It uses SUPABASE_SERVICE_ROLE_KEY instead
-// of SUPABASE_ANON_KEY.
-//
-// NEVER expose this key in React/Vite.
-//
 // =====================================================
 
 let supabase;
@@ -171,7 +158,6 @@ try {
   console.error("❌ Failed to create Supabase client:", error.message);
   process.exit(1);
 }
-
 
 // =====================================================
 // EMAIL
@@ -197,7 +183,6 @@ try {
 } catch (error) {
   console.error("❌ Email configuration error:", error.message);
 }
-
 
 // =====================================================
 // DATABASE TEST
@@ -242,7 +227,6 @@ async function initializeDatabase() {
 // Start database test.
 initializeDatabase();
 
-
 // =====================================================
 // TEST ROUTE
 // =====================================================
@@ -258,7 +242,6 @@ app.get("/api/test", (req, res) => {
     },
   });
 });
-
 
 // =====================================================
 // HEALTH CHECK
@@ -301,7 +284,6 @@ app.get("/api/health", async (req, res) => {
   }
 });
 
-
 // =====================================================
 // COMMERCIAL
 // =====================================================
@@ -315,7 +297,6 @@ app.get("/api/commercial", (req, res) => {
     triggers: [5, 10, 15],
   });
 });
-
 
 // =====================================================
 // BIRTHDAYS
@@ -379,7 +360,6 @@ app.get("/api/members/birthdays", async (req, res) => {
   }
 });
 
-
 // =====================================================
 // GET MEMBERS
 // =====================================================
@@ -431,7 +411,6 @@ app.get("/api/members", async (req, res) => {
   }
 });
 
-
 // =====================================================
 // GET SINGLE MEMBER
 // =====================================================
@@ -468,7 +447,6 @@ app.get("/api/members/:id", async (req, res) => {
     });
   }
 });
-
 
 // =====================================================
 // CREATE MEMBER
@@ -527,7 +505,6 @@ app.post("/api/members", async (req, res) => {
     });
   }
 });
-
 
 // =====================================================
 // UPDATE MEMBER
@@ -593,7 +570,6 @@ app.put("/api/members/:id", async (req, res) => {
     });
   }
 });
-
 
 // =====================================================
 // DELETE MEMBER
@@ -705,7 +681,6 @@ app.post("/api/send-enquiry", async (req, res) => {
   }
 });
 
-
 // =====================================================
 // 404 HANDLER
 // =====================================================
@@ -717,7 +692,6 @@ app.use((req, res) => {
     path: req.originalUrl,
   });
 });
-
 
 // =====================================================
 // GLOBAL ERROR HANDLER
@@ -734,9 +708,10 @@ app.use((error, req, res, next) => {
   });
 });
 
-
 // =====================================================
 // START SERVER
+// =====================================================
+
 const PORT = process.env.PORT || 5000;
 
 // Only start the server if this file is run directly

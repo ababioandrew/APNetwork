@@ -26,8 +26,8 @@
     "start": "cross-env PORT=3000 react-scripts start",
     "server": "node server.js",
     "dev": "concurrently \"npm run start\" \"npm run server\"",
-    "db": "node db.js",
     "build": "react-scripts build",
+    "vercel-build": "npm run build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

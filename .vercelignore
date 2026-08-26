@@ -1,9 +1,39 @@
 cat > .vercelignore << 'EOF'
+# Dependencies
 node_modules
-.git
+
+# Environment files
 .env
+.env.local
+.env.development
+.env.production
+
+# Git
+.git
+.gitignore
+
+# Development files
 .DS_Store
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Source files (not needed in production)
 src/
 public/
+
+# Build cache
+.cache/
+.vercel/
+
+# Testing
+coverage/
+.nyc_output/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
 EOF
